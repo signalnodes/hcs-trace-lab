@@ -7,7 +7,7 @@ The read-only inspector runs without credentials. Testnet writes are isolated to
 ## Quickstart
 
 ```bash
-npm create scaffold-hbar@latest <your-project-name> -- --template signalnodes/hcs-trace-lab
+npx create-scaffold-hbar@latest <your-project-name> --template signalnodes/hcs-trace-lab
 cd <your-project-name>
 npm run dev
 ```
@@ -25,7 +25,7 @@ npm install
 ```bash
 npm run lint
 npm run build
-npm test
+npm run test
 ```
 
 ## Credential-Free Inspection
@@ -137,7 +137,7 @@ These labels do not prove signer identity, account ownership, or complete protoc
 Add a detector in `packages/hcs-trace-core/src/decode/`, include a focused fixture in `packages/hcs-trace-core/tests/`, then run:
 
 ```bash
-npm test -w @hcs-trace-lab/core
+npm run test -w @hcs-trace-lab/core
 ```
 
 Keep extracted fields small and useful for inspection.
@@ -156,7 +156,7 @@ Keep extracted fields small and useful for inspection.
 - `template.json`
 - `README.md`
 - `AGENTS.md`
-- npm workspaces
+- npm workspace layout
 - `packages/nextjs`
 - `packages/hardhat`
 - Node `>=20.18.3`

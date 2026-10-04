@@ -12,7 +12,7 @@
 - `npm run dev`: start the inspector at `http://localhost:3000`.
 - `npm run lint`: run workspace static checks.
 - `npm run build`: build the core package, compile Hardhat, and build Next.js.
-- `npm test`: run core tests and Hardhat tests.
+- `npm run test`: run core tests and Hardhat tests.
 - `npm run demo:hcs10`: create a real HCS-10 exchange on testnet using the HOL Standards SDK transaction builders.
 
 ## Credential Handling
