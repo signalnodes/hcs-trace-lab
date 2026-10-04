@@ -28,6 +28,7 @@
 - `structural_match` means the payload matched a minimal known shape for a standard.
 - `heuristic_match` means fields looked like a known standard but did not satisfy the stricter structural detector.
 - Neither label proves signer identity, account ownership, topic authority, or full protocol compliance.
+- HCS-10 flow checks in `packages/hcs-trace-core/src/hcs10/flow.ts` are cross-message consistency checks. Keep pass/warn/fail/info semantics honest and never present them as identity verification.
 - Keep this distinction visible in UI copy, docs, and tests.
 
 ## Scope

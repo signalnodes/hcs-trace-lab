@@ -41,6 +41,24 @@ NEXT_PUBLIC_DEFAULT_TOPIC_ID=0.0.10862287
 
 The app falls back to testnet topic `0.0.10862287` when no topic is configured. The scaffold CLI regenerates `.env.example` with blank values, so this fallback is in application code rather than in the generated env file. You can replace it with any public HCS topic ID.
 
+## Trace an HCS-10 Connection
+
+Open `http://localhost:3000/trace`. Enter either:
+
+- an agent's inbound topic: lists its connection requests and follows each confirmed one to its connection topic, or
+- a connection topic: reads its `hcs-10:1:{ttl}:2:{inboundTopicId}:{connectionId}` memo and walks back to the original request.
+
+Each connection is rebuilt as one flow (`connection_request` to `connection_created` to connection topic to messages to close), with participants parsed from `operator_id` (`{inboundTopicId}@{accountId}`) and consistency checks:
+
+- request exists at the inbound sequence named by `connection_id`
+- confirmation points at this connection topic and reached consensus after the request
+- connection topic memo links back to the same inbound topic and connection ID
+- messages come from the two participants and arrive after the confirmation
+
+These checks compare on-chain HCS-10 messages with each other. They do not verify signer identity, HCS-11 profiles, or registry membership. Reads are bounded at 500 messages per topic and 5 connections per inbound trace, and the response says when it was truncated. Multi-chunk messages are reassembled; `hcs://1/` payload references are shown but not resolved.
+
+API: `GET /api/trace?network=testnet&topicId=0.0.10862287`. Library exports: `traceHcs10Topic`, `buildConnectionFlow`, and `parseHcs10Events` from `@hcs-trace-lab/core`.
+
 ## HCS-10 Demo
 
 Create a local `.env`:
@@ -119,6 +137,7 @@ Observed evidence:
 
 - The decoder is adapted from the MIT-licensed `signalnodes/hcs-trace` CLI and packaged here as a reusable library for Scaffold-HBAR apps.
 - `packages/hcs-trace-core` contains mirror reads, bounded pagination, retry/backoff, timeouts, decoding, and classification.
+- `packages/hcs-trace-core/src/hcs10` joins HCS-10 messages across inbound and connection topics into connection flows; `/trace` renders them.
 - `packages/nextjs` provides the inspector UI and `/api/topic`, which keeps mirror reads server-side.
 - `packages/hardhat` satisfies the Hardhat framework requirement and contains the HOL SDK demo script.
 

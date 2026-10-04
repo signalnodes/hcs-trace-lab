@@ -142,6 +142,12 @@ export default function Home() {
               : "Idle"}
           </span>
         </div>
+        <a
+          className="traceLink"
+          href={`/trace?network=${network}&topicId=${encodeURIComponent(topicId)}`}
+        >
+          Trace HCS-10 connection
+        </a>
       </section>
 
       <form className="controls" onSubmit={onSubmit}>
