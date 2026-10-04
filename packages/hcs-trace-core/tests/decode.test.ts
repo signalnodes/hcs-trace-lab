@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { decodePayload } from "../src/decode/index.js";
 
 function b64(value: unknown): string {
-  return Buffer.from(typeof value === "string" ? value : JSON.stringify(value), "utf8").toString("base64");
+  return Buffer.from(
+    typeof value === "string" ? value : JSON.stringify(value),
+    "utf8",
+  ).toString("base64");
 }
 
 describe("decodePayload", () => {
@@ -14,8 +17,8 @@ describe("decodePayload", () => {
         operator_id: "0.0.1001@0.0.2002",
         connection_topic_id: "0.0.3003",
         connection_id: 7,
-        m: "accepted"
-      })
+        m: "accepted",
+      }),
     );
 
     expect(result.standard).toBe("HCS-10");
@@ -36,8 +39,8 @@ describe("decodePayload", () => {
     const result = decodePayload(
       b64({
         p: "hcs-10",
-        op: "message"
-      })
+        op: "message",
+      }),
     );
 
     expect(result.standard).toBe("HCS-10");

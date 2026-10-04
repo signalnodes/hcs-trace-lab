@@ -6,7 +6,7 @@ import type {
   MirrorTopicInfo,
   SortOrder,
   TopicSnapshot,
-  TopicSnapshotOptions
+  TopicSnapshotOptions,
 } from "./types.js";
 
 export * from "./types.js";
@@ -14,7 +14,7 @@ export * from "./types.js";
 const mirrorBases: Record<HederaNetwork, string> = {
   mainnet: "https://mainnet.mirrornode.hedera.com",
   testnet: "https://testnet.mirrornode.hedera.com",
-  previewnet: "https://previewnet.mirrornode.hedera.com"
+  previewnet: "https://previewnet.mirrornode.hedera.com",
 };
 
 const maxPageLimit = 100;
@@ -32,7 +32,9 @@ export function normalizeTopicId(input: string): string {
   throw new Error(`Invalid topic ID "${input}". Use 0.0.x or x.`);
 }
 
-export async function fetchTopicSnapshot(options: TopicSnapshotOptions): Promise<TopicSnapshot> {
+export async function fetchTopicSnapshot(
+  options: TopicSnapshotOptions,
+): Promise<TopicSnapshot> {
   const topicId = normalizeTopicId(options.topicId);
   const network = options.network;
   const fetchImpl = options.fetchImpl ?? fetch;
@@ -42,7 +44,7 @@ export async function fetchTopicSnapshot(options: TopicSnapshotOptions): Promise
   const topic = await mirrorFetch<MirrorTopicInfo>(topicUrl(network, topicId), {
     fetchImpl,
     timeoutMs,
-    maxRetries
+    maxRetries,
   });
 
   const page = await fetchMessagePage({
@@ -53,25 +55,32 @@ export async function fetchTopicSnapshot(options: TopicSnapshotOptions): Promise
     cursor: options.cursor,
     fetchImpl,
     timeoutMs,
-    maxRetries
+    maxRetries,
   });
 
   const standard = options.standard?.trim().toUpperCase();
   const text = options.text?.trim().toLowerCase();
-  const messages = page.messages.map(message => enrichMessage(network, message)).filter(message => {
-    if (standard && standard !== "ALL" && message.decode.standard !== standard) return false;
-    if (text) {
-      const haystack = [
-        message.decode.decodedText,
-        message.decode.summary,
-        JSON.stringify(message.decode.extractedFields)
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (!haystack.includes(text)) return false;
-    }
-    return true;
-  });
+  const messages = page.messages
+    .map((message) => enrichMessage(network, message))
+    .filter((message) => {
+      if (
+        standard &&
+        standard !== "ALL" &&
+        message.decode.standard !== standard
+      )
+        return false;
+      if (text) {
+        const haystack = [
+          message.decode.decodedText,
+          message.decode.summary,
+          JSON.stringify(message.decode.extractedFields),
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(text)) return false;
+      }
+      return true;
+    });
 
   return {
     network,
@@ -80,7 +89,7 @@ export async function fetchTopicSnapshot(options: TopicSnapshotOptions): Promise
     messages,
     nextCursor: page.nextCursor,
     state: getSnapshotState(topic, page.messages.length),
-    fetchedAt: new Date().toISOString()
+    fetchedAt: new Date().toISOString(),
   };
 }
 
@@ -96,15 +105,18 @@ export async function fetchMessagePage(params: {
 }): Promise<{ messages: MirrorMessage[]; nextCursor: string | null }> {
   const fetchImpl = params.fetchImpl ?? fetch;
   const url = messagePageUrl(params);
-  const data = await mirrorFetch<{ messages?: MirrorMessage[]; links?: { next?: string | null } }>(url, {
+  const data = await mirrorFetch<{
+    messages?: MirrorMessage[];
+    links?: { next?: string | null };
+  }>(url, {
     fetchImpl,
     timeoutMs: params.timeoutMs ?? defaultTimeoutMs,
-    maxRetries: params.maxRetries ?? defaultMaxRetries
+    maxRetries: params.maxRetries ?? defaultMaxRetries,
   });
 
   return {
     messages: data.messages ?? [],
-    nextCursor: data.links?.next ?? null
+    nextCursor: data.links?.next ?? null,
   };
 }
 
@@ -121,29 +133,45 @@ function messagePageUrl(params: {
 }): string {
   const base = getMirrorBase(params.network);
   if (params.cursor) {
-    if (!params.cursor.startsWith("/api/v1/")) throw new Error("Invalid mirror cursor.");
+    if (!params.cursor.startsWith("/api/v1/"))
+      throw new Error("Invalid mirror cursor.");
     return `${base}${params.cursor}`;
   }
 
   const url = new URL(`${base}/api/v1/topics/${params.topicId}/messages`);
-  url.searchParams.set("limit", String(Math.min(Math.max(params.limit ?? 25, 1), maxPageLimit)));
+  url.searchParams.set(
+    "limit",
+    String(Math.min(Math.max(params.limit ?? 25, 1), maxPageLimit)),
+  );
   url.searchParams.set("order", params.order ?? "desc");
   return url.toString();
 }
 
 async function mirrorFetch<T>(
   url: string,
-  opts: { fetchImpl: typeof fetch; timeoutMs: number; maxRetries: number }
+  opts: { fetchImpl: typeof fetch; timeoutMs: number; maxRetries: number },
 ): Promise<T> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= opts.maxRetries; attempt += 1) {
     try {
-      const response = await fetchWithTimeout(url, opts.fetchImpl, opts.timeoutMs);
-      if (response.status === 404) throw new MirrorError(404, `Topic or message page not found: ${url}`);
+      const response = await fetchWithTimeout(
+        url,
+        opts.fetchImpl,
+        opts.timeoutMs,
+      );
+      if (response.status === 404)
+        throw new MirrorError(404, `Topic or message page not found: ${url}`);
       if (response.status === 429 || response.status >= 500) {
-        throw new RetryableMirrorError(response.status, `Mirror node returned ${response.status}`);
+        throw new RetryableMirrorError(
+          response.status,
+          `Mirror node returned ${response.status}`,
+        );
       }
-      if (!response.ok) throw new MirrorError(response.status, `Mirror node returned ${response.status}`);
+      if (!response.ok)
+        throw new MirrorError(
+          response.status,
+          `Mirror node returned ${response.status}`,
+        );
       return (await response.json()) as T;
     } catch (error) {
       lastError = error;
@@ -151,25 +179,34 @@ async function mirrorFetch<T>(
       await sleep(250 * 2 ** attempt);
     }
   }
-  throw lastError instanceof Error ? lastError : new Error("Mirror node request failed.");
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Mirror node request failed.");
 }
 
-async function fetchWithTimeout(url: string, fetchImpl: typeof fetch, timeoutMs: number): Promise<Response> {
+async function fetchWithTimeout(
+  url: string,
+  fetchImpl: typeof fetch,
+  timeoutMs: number,
+): Promise<Response> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetchImpl(url, {
       signal: controller.signal,
       headers: {
-        accept: "application/json"
-      }
+        accept: "application/json",
+      },
     });
   } finally {
     clearTimeout(timeout);
   }
 }
 
-function enrichMessage(network: HederaNetwork, message: MirrorMessage): EnrichedMessage {
+function enrichMessage(
+  network: HederaNetwork,
+  message: MirrorMessage,
+): EnrichedMessage {
   const decode = decodePayload(message.message);
   return {
     topicId: message.topic_id,
@@ -181,29 +218,40 @@ function enrichMessage(network: HederaNetwork, message: MirrorMessage): Enriched
     rawBase64: message.message,
     rawBytesLength: Buffer.from(message.message, "base64").byteLength,
     hashscanUrl: `https://hashscan.io/${network}/topic/${message.topic_id}`,
-    decode
+    decode,
   };
 }
 
-function getSnapshotState(topic: MirrorTopicInfo, messageCount: number): TopicSnapshot["state"] {
+function getSnapshotState(
+  topic: MirrorTopicInfo,
+  messageCount: number,
+): TopicSnapshot["state"] {
   if (messageCount > 0) return "ok";
-  const created = Number(topic.created_timestamp ?? topic.timestamp?.from ?? "0".split(".")[0]);
-  const ageSeconds = Number.isFinite(created) && created > 0 ? Date.now() / 1000 - created : Number.POSITIVE_INFINITY;
+  const created = Number(
+    topic.created_timestamp ?? topic.timestamp?.from ?? "0".split(".")[0],
+  );
+  const ageSeconds =
+    Number.isFinite(created) && created > 0
+      ? Date.now() / 1000 - created
+      : Number.POSITIVE_INFINITY;
   return ageSeconds < 90 ? "indexing_delay" : "empty";
 }
 
 function isRetryable(error: unknown): boolean {
-  return error instanceof RetryableMirrorError || (error instanceof Error && error.name === "AbortError");
+  return (
+    error instanceof RetryableMirrorError ||
+    (error instanceof Error && error.name === "AbortError")
+  );
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export class MirrorError extends Error {
   constructor(
     readonly status: number,
-    message: string
+    message: string,
   ) {
     super(message);
     this.name = "MirrorError";

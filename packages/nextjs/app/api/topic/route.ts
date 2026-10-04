@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { MirrorError, fetchTopicSnapshot, type HederaNetwork, type SortOrder } from "@hcs-trace-lab/core";
+import {
+  MirrorError,
+  fetchTopicSnapshot,
+  type HederaNetwork,
+  type SortOrder,
+} from "@hcs-trace-lab/core";
 
 export const dynamic = "force-dynamic";
 
@@ -28,12 +33,15 @@ export async function GET(request: Request) {
       limit,
       cursor,
       standard,
-      text
+      text,
     });
     return NextResponse.json(snapshot);
   } catch (error) {
     if (error instanceof MirrorError) {
-      return NextResponse.json({ error: error.message, status: error.status }, { status: error.status === 404 ? 404 : 502 });
+      return NextResponse.json(
+        { error: error.message, status: error.status },
+        { status: error.status === 404 ? 404 : 502 },
+      );
     }
     const message = error instanceof Error ? error.message : "Unknown error";
     const status = message.startsWith("Invalid") ? 400 : 500;

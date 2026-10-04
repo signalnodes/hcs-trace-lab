@@ -4,7 +4,7 @@ import {
   PrivateKey,
   TopicCreateTransaction,
   TopicMessageSubmitTransaction,
-  TransactionReceipt
+  TransactionReceipt,
 } from "@hashgraph/sdk";
 import dotenv from "dotenv";
 import fs from "node:fs/promises";
@@ -40,7 +40,9 @@ type DemoEvidence = {
   transactions: TxEvidence[];
 };
 
-type Hcs10TxBuilder<TTransaction> = (params: Record<string, unknown>) => TTransaction;
+type Hcs10TxBuilder<TTransaction> = (
+  params: Record<string, unknown>,
+) => TTransaction;
 
 type Hcs10TxBuilders = {
   buildHcs10ConfirmConnectionTx: Hcs10TxBuilder<TopicMessageSubmitTransaction>;
@@ -61,7 +63,7 @@ const HCS10_BUILDER_NAMES = [
   "buildHcs10OutboundConnectionCreatedRecordTx",
   "buildHcs10OutboundConnectionRequestRecordTx",
   "buildHcs10SendMessageTx",
-  "buildHcs10SubmitConnectionRequestTx"
+  "buildHcs10SubmitConnectionRequestTx",
 ] as const satisfies readonly (keyof Hcs10TxBuilders)[];
 
 const __filename = fileURLToPath(import.meta.url);
@@ -78,17 +80,24 @@ async function main() {
     buildHcs10OutboundConnectionCreatedRecordTx,
     buildHcs10OutboundConnectionRequestRecordTx,
     buildHcs10SendMessageTx,
-    buildHcs10SubmitConnectionRequestTx
+    buildHcs10SubmitConnectionRequestTx,
   } = await loadHcs10TxBuilders();
   const network = parseNetwork(process.env.HEDERA_NETWORK?.trim() || "testnet");
   assertDemoNetwork(network);
-  const operatorAccountId = requireFirstEnv(["HEDERA_ACCOUNT_ID", "HEDERA_OPERATOR_ID"]);
-  const operatorPrivateKey = parsePrivateKey(requireFirstEnv(["HEDERA_PRIVATE_KEY", "HEDERA_OPERATOR_KEY"]));
+  const operatorAccountId = requireFirstEnv([
+    "HEDERA_ACCOUNT_ID",
+    "HEDERA_OPERATOR_ID",
+  ]);
+  const operatorPrivateKey = parsePrivateKey(
+    requireFirstEnv(["HEDERA_PRIVATE_KEY", "HEDERA_OPERATOR_KEY"]),
+  );
   const operatorPublicKey = operatorPrivateKey.publicKey;
   const client = createClient(network, operatorAccountId, operatorPrivateKey);
   const transactions: TxEvidence[] = [];
 
-  console.log(`Creating HCS-10 demo exchange on ${network} as ${operatorAccountId}`);
+  console.log(
+    `Creating HCS-10 demo exchange on ${network} as ${operatorAccountId}`,
+  );
 
   const aliceInbound = await createTopic(
     client,
@@ -99,8 +108,8 @@ async function main() {
       ttl: 3600,
       adminKey: operatorPublicKey,
       submitKey: false,
-      operatorPublicKey
-    })
+      operatorPublicKey,
+    }),
   );
   transactions.push(aliceInbound);
 
@@ -112,8 +121,8 @@ async function main() {
       ttl: 3600,
       adminKey: operatorPublicKey,
       submitKey: operatorPublicKey,
-      operatorPublicKey
-    })
+      operatorPublicKey,
+    }),
   );
   transactions.push(aliceOutbound);
 
@@ -126,8 +135,8 @@ async function main() {
       ttl: 3600,
       adminKey: operatorPublicKey,
       submitKey: false,
-      operatorPublicKey
-    })
+      operatorPublicKey,
+    }),
   );
   transactions.push(bobInbound);
 
@@ -139,8 +148,8 @@ async function main() {
       ttl: 3600,
       adminKey: operatorPublicKey,
       submitKey: operatorPublicKey,
-      operatorPublicKey
-    })
+      operatorPublicKey,
+    }),
   );
   transactions.push(bobOutbound);
 
@@ -155,13 +164,15 @@ async function main() {
     buildHcs10SubmitConnectionRequestTx({
       inboundTopicId: bobInbound.topicId!,
       operatorId: aliceOperatorId,
-      memo: "Trace Lab Alice requests a connection to Bob."
-    })
+      memo: "Trace Lab Alice requests a connection to Bob.",
+    }),
   );
   transactions.push(request);
 
   if (!request.sequenceNumber) {
-    throw new Error("Connection request did not return a topic sequence number.");
+    throw new Error(
+      "Connection request did not return a topic sequence number.",
+    );
   }
 
   const outboundRequest = await submitMessage(
@@ -173,8 +184,8 @@ async function main() {
       outboundTopicId: aliceOutbound.topicId!,
       operatorId: bobOperatorId,
       connectionRequestId: request.sequenceNumber,
-      memo: "Outbound record for Bob connection request."
-    })
+      memo: "Outbound record for Bob connection request.",
+    }),
   );
   transactions.push(outboundRequest);
 
@@ -188,8 +199,8 @@ async function main() {
       connectionId: request.sequenceNumber,
       adminKey: operatorPublicKey,
       submitKey: operatorPublicKey,
-      operatorPublicKey
-    })
+      operatorPublicKey,
+    }),
   );
   transactions.push(connectionTopic);
 
@@ -204,8 +215,8 @@ async function main() {
       connectedAccountId: operatorAccountId,
       operatorId: bobOperatorId,
       connectionId: request.sequenceNumber,
-      memo: "Trace Lab Bob accepts the connection."
-    })
+      memo: "Trace Lab Bob accepts the connection.",
+    }),
   );
   transactions.push(confirmation);
 
@@ -221,8 +232,8 @@ async function main() {
       confirmedRequestId: confirmation.sequenceNumber ?? request.sequenceNumber,
       connectionRequestId: request.sequenceNumber,
       operatorId: aliceOperatorId,
-      memo: "Outbound record for accepted Trace Lab connection."
-    })
+      memo: "Outbound record for accepted Trace Lab connection.",
+    }),
   );
   transactions.push(outboundConfirmation);
 
@@ -237,10 +248,10 @@ async function main() {
       data: JSON.stringify({
         type: "trace_lab_ping",
         body: "Can you confirm the decoder sees this HCS-10 exchange?",
-        sentAt: new Date().toISOString()
+        sentAt: new Date().toISOString(),
       }),
-      memo: "Alice asks Bob to confirm the trace."
-    })
+      memo: "Alice asks Bob to confirm the trace.",
+    }),
   );
   transactions.push(aliceMessage);
 
@@ -255,10 +266,10 @@ async function main() {
       data: JSON.stringify({
         type: "trace_lab_ack",
         body: "Confirmed. This message was submitted through the HOL HCS-10 builder flow.",
-        sentAt: new Date().toISOString()
+        sentAt: new Date().toISOString(),
       }),
-      memo: "Bob confirms the trace."
-    })
+      memo: "Bob confirms the trace.",
+    }),
   );
   transactions.push(bobMessage);
 
@@ -272,26 +283,42 @@ async function main() {
     connectionTopicId: connectionTopic.topicId!,
     connectionRequestSequence: request.sequenceNumber,
     mirrorUrls: {
-      connectionTopicMessages: mirrorTopicMessagesUrl(network, connectionTopic.topicId!),
-      bobInboundMessages: mirrorTopicMessagesUrl(network, bobInbound.topicId!)
+      connectionTopicMessages: mirrorTopicMessagesUrl(
+        network,
+        connectionTopic.topicId!,
+      ),
+      bobInboundMessages: mirrorTopicMessagesUrl(network, bobInbound.topicId!),
     },
-    transactions
+    transactions,
   };
 
   const outputDir = path.resolve(__dirname, "../demo-output");
   await fs.mkdir(outputDir, { recursive: true });
-  await fs.writeFile(path.join(outputDir, "hcs10-last-run.json"), JSON.stringify(evidence, null, 2));
+  await fs.writeFile(
+    path.join(outputDir, "hcs10-last-run.json"),
+    JSON.stringify(evidence, null, 2),
+  );
 
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`Inspect the connection topic: ${connectionTopic.hashscanUrl}`);
-  console.log(`Set NEXT_PUBLIC_DEFAULT_TOPIC_ID=${connectionTopic.topicId} to load this exchange by default.`);
+  console.log(
+    `Set NEXT_PUBLIC_DEFAULT_TOPIC_ID=${connectionTopic.topicId} to load this exchange by default.`,
+  );
 
   client.close();
 }
 
-function createClient(network: Network, accountId: string, privateKey: PrivateKey): Client {
+function createClient(
+  network: Network,
+  accountId: string,
+  privateKey: PrivateKey,
+): Client {
   const client =
-    network === "mainnet" ? Client.forMainnet() : network === "previewnet" ? Client.forPreviewnet() : Client.forTestnet();
+    network === "mainnet"
+      ? Client.forMainnet()
+      : network === "previewnet"
+        ? Client.forPreviewnet()
+        : Client.forTestnet();
   client.setOperator(accountId, privateKey);
   client.setDefaultMaxTransactionFee(new Hbar(5));
   client.setDefaultMaxQueryPayment(new Hbar(1));
@@ -299,11 +326,16 @@ function createClient(network: Network, accountId: string, privateKey: PrivateKe
 }
 
 async function loadHcs10TxBuilders(): Promise<Hcs10TxBuilders> {
-  const sdk = (await import("@hashgraphonline/standards-sdk")) as unknown as Partial<Hcs10TxBuilders>;
-  const missingBuilders = HCS10_BUILDER_NAMES.filter(builderName => typeof sdk[builderName] !== "function");
+  const sdk =
+    (await import("@hashgraphonline/standards-sdk")) as unknown as Partial<Hcs10TxBuilders>;
+  const missingBuilders = HCS10_BUILDER_NAMES.filter(
+    (builderName) => typeof sdk[builderName] !== "function",
+  );
 
   if (missingBuilders.length > 0) {
-    throw new Error(`@hashgraphonline/standards-sdk is missing HCS-10 builders: ${missingBuilders.join(", ")}`);
+    throw new Error(
+      `@hashgraphonline/standards-sdk is missing HCS-10 builders: ${missingBuilders.join(", ")}`,
+    );
   }
 
   return sdk as Hcs10TxBuilders;
@@ -313,7 +345,7 @@ async function createTopic(
   client: Client,
   network: Network,
   label: string,
-  transaction: TopicCreateTransaction
+  transaction: TopicCreateTransaction,
 ): Promise<TxEvidence> {
   const response = await transaction.execute(client);
   const receipt = await response.getReceipt(client);
@@ -323,11 +355,19 @@ async function createTopic(
   return {
     label,
     transactionId: response.transactionId.toString(),
-    mirrorTransactionId: toMirrorTransactionId(response.transactionId.toString()),
-    transactionHashscanUrl: hashscanTransactionUrl(network, response.transactionId.toString()),
-    mirrorTransactionUrl: mirrorTransactionUrl(network, response.transactionId.toString()),
+    mirrorTransactionId: toMirrorTransactionId(
+      response.transactionId.toString(),
+    ),
+    transactionHashscanUrl: hashscanTransactionUrl(
+      network,
+      response.transactionId.toString(),
+    ),
+    mirrorTransactionUrl: mirrorTransactionUrl(
+      network,
+      response.transactionId.toString(),
+    ),
     hashscanUrl: `https://hashscan.io/${network}/topic/${topicId}`,
-    topicId
+    topicId,
   };
 }
 
@@ -336,7 +376,7 @@ async function submitMessage(
   network: Network,
   label: string,
   topicId: string,
-  transaction: TopicMessageSubmitTransaction
+  transaction: TopicMessageSubmitTransaction,
 ): Promise<TxEvidence> {
   const response = await transaction.execute(client);
   const receipt = await response.getReceipt(client);
@@ -344,22 +384,32 @@ async function submitMessage(
   return {
     label,
     transactionId: response.transactionId.toString(),
-    mirrorTransactionId: toMirrorTransactionId(response.transactionId.toString()),
-    transactionHashscanUrl: hashscanTransactionUrl(network, response.transactionId.toString()),
-    mirrorTransactionUrl: mirrorTransactionUrl(network, response.transactionId.toString()),
+    mirrorTransactionId: toMirrorTransactionId(
+      response.transactionId.toString(),
+    ),
+    transactionHashscanUrl: hashscanTransactionUrl(
+      network,
+      response.transactionId.toString(),
+    ),
+    mirrorTransactionUrl: mirrorTransactionUrl(
+      network,
+      response.transactionId.toString(),
+    ),
     hashscanUrl: `https://hashscan.io/${network}/topic/${topicId}`,
     topicId,
-    sequenceNumber: receipt.topicSequenceNumber?.toNumber()
+    sequenceNumber: receipt.topicSequenceNumber?.toNumber(),
   };
 }
 
 function assertStatus(receipt: TransactionReceipt, label: string) {
   const status = receipt.status.toString();
-  if (status !== "SUCCESS") throw new Error(`${label} failed with status ${status}.`);
+  if (status !== "SUCCESS")
+    throw new Error(`${label} failed with status ${status}.`);
 }
 
 function parseNetwork(value: string): Network {
-  if (value === "mainnet" || value === "testnet" || value === "previewnet") return value;
+  if (value === "mainnet" || value === "testnet" || value === "previewnet")
+    return value;
   throw new Error(`Unsupported HEDERA_NETWORK "${value}".`);
 }
 
@@ -367,7 +417,7 @@ function assertDemoNetwork(network: Network): void {
   if (network === "testnet") return;
   if (process.env.ALLOW_NON_TESTNET_DEMO === "true") return;
   throw new Error(
-    `Refusing to run the HCS-10 demo on ${network}. Set HEDERA_NETWORK=testnet, or set ALLOW_NON_TESTNET_DEMO=true if you really intend to spend on another network.`
+    `Refusing to run the HCS-10 demo on ${network}. Set HEDERA_NETWORK=testnet, or set ALLOW_NON_TESTNET_DEMO=true if you really intend to spend on another network.`,
   );
 }
 
@@ -377,7 +427,9 @@ function requireFirstEnv(keys: string[]): string {
     if (value) return value;
   }
 
-  throw new Error(`${keys.join(" or ")} is required. Copy .env.example to .env and use a funded testnet account.`);
+  throw new Error(
+    `${keys.join(" or ")} is required. Copy .env.example to .env and use a funded testnet account.`,
+  );
 }
 
 function parsePrivateKey(value: string): PrivateKey {
@@ -385,7 +437,7 @@ function parsePrivateKey(value: string): PrivateKey {
     () => PrivateKey.fromStringECDSA(value),
     () => PrivateKey.fromStringED25519(value),
     () => PrivateKey.fromStringDer(value),
-    () => PrivateKey.fromString(value)
+    () => PrivateKey.fromString(value),
   ];
 
   for (const parse of parsers) {
@@ -396,7 +448,9 @@ function parsePrivateKey(value: string): PrivateKey {
     }
   }
 
-  throw new Error("HEDERA_PRIVATE_KEY could not be parsed as an ECDSA, ED25519, DER, or SDK private key.");
+  throw new Error(
+    "HEDERA_PRIVATE_KEY could not be parsed as an ECDSA, ED25519, DER, or SDK private key.",
+  );
 }
 
 function toMirrorTransactionId(transactionId: string): string {
@@ -405,7 +459,10 @@ function toMirrorTransactionId(transactionId: string): string {
   return `${accountId}-${timestamp.replace(".", "-")}`;
 }
 
-function hashscanTransactionUrl(network: Network, transactionId: string): string {
+function hashscanTransactionUrl(
+  network: Network,
+  transactionId: string,
+): string {
   return `https://hashscan.io/${network}/transaction/${toMirrorTransactionId(transactionId)}`;
 }
 
@@ -419,11 +476,12 @@ function mirrorTopicMessagesUrl(network: Network, topicId: string): string {
 
 function getMirrorBase(network: Network): string {
   if (network === "mainnet") return "https://mainnet.mirrornode.hedera.com";
-  if (network === "previewnet") return "https://previewnet.mirrornode.hedera.com";
+  if (network === "previewnet")
+    return "https://previewnet.mirrornode.hedera.com";
   return "https://testnet.mirrornode.hedera.com";
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });

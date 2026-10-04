@@ -1,4 +1,9 @@
-import type { ContentType, DecodeResult, DecodedPayload, Detector } from "./types.js";
+import type {
+  ContentType,
+  DecodeResult,
+  DecodedPayload,
+  Detector,
+} from "./types.js";
 import { HeuristicDetector } from "./detector.js";
 import { tryStructuralMatch } from "./schemas.js";
 
@@ -9,7 +14,7 @@ const structuralDetector: Detector = {
   detect(payload) {
     if (payload.json === null) return null;
     return tryStructuralMatch(payload.json);
-  }
+  },
 };
 
 const fallbackDetector: Detector = {
@@ -24,7 +29,7 @@ const fallbackDetector: Detector = {
         matchKind: "fallback",
         extractedFields: {},
         explanation: "Payload could not be decoded as UTF-8 text.",
-        warnings: []
+        warnings: [],
       };
     }
     if (payload.json === null) {
@@ -35,8 +40,9 @@ const fallbackDetector: Detector = {
         confidence: "low",
         matchKind: "fallback",
         extractedFields: {},
-        explanation: "Payload is readable text, but it is not JSON and did not match a known HCS detector.",
-        warnings: []
+        explanation:
+          "Payload is readable text, but it is not JSON and did not match a known HCS detector.",
+        warnings: [],
       };
     }
     const obj = payload.json as Record<string, unknown>;
@@ -48,13 +54,18 @@ const fallbackDetector: Detector = {
       confidence: "low",
       matchKind: "fallback",
       extractedFields: {},
-      explanation: "Payload is JSON, but it did not match the built-in standard detectors.",
-      warnings: []
+      explanation:
+        "Payload is JSON, but it did not match the built-in standard detectors.",
+      warnings: [],
     };
-  }
+  },
 };
 
-const pipeline: Detector[] = [structuralDetector, new HeuristicDetector(), fallbackDetector];
+const pipeline: Detector[] = [
+  structuralDetector,
+  new HeuristicDetector(),
+  fallbackDetector,
+];
 
 export function decodePayload(base64: string): DecodeResult {
   const payload = normalizePayload(base64);
@@ -69,7 +80,7 @@ export function decodePayload(base64: string): DecodeResult {
       rawBase64: base64,
       decodedText: payload.text ?? "(binary)",
       parsed: payload.json,
-      detectedBy: detector.name
+      detectedBy: detector.name,
     };
   }
 
@@ -102,6 +113,8 @@ function getContentType(payload: DecodedPayload): ContentType {
 
 function summarizeJson(obj: Record<string, unknown>): string {
   const fields = ["type", "p", "op", "id", "account_id", "operator_id"];
-  const parts = fields.filter(field => obj[field] !== undefined).map(field => `${field}=${String(obj[field]).slice(0, 32)}`);
+  const parts = fields
+    .filter((field) => obj[field] !== undefined)
+    .map((field) => `${field}=${String(obj[field]).slice(0, 32)}`);
   return parts.join(" ") || JSON.stringify(obj).slice(0, 96);
 }

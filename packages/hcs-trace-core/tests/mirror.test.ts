@@ -4,7 +4,7 @@ import { fetchTopicSnapshot, normalizeTopicId } from "../src/mirror/index.js";
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "content-type": "application/json" }
+    headers: { "content-type": "application/json" },
   });
 }
 
@@ -26,29 +26,34 @@ describe("mirror helpers", () => {
         jsonResponse({
           topic_id: "0.0.5005",
           memo: "hcs-10:0:60:0:0.0.1001",
-          created_timestamp: "1770000000.000000000"
-        })
+          created_timestamp: "1770000000.000000000",
+        }),
       )
       .mockResolvedValueOnce(
         jsonResponse({
           messages: [
             {
               consensus_timestamp: "1770000001.000000000",
-              message: message({ p: "hcs-10", op: "message", operator_id: "0.0.5005@0.0.1001", data: "ping" }),
+              message: message({
+                p: "hcs-10",
+                op: "message",
+                operator_id: "0.0.5005@0.0.1001",
+                data: "ping",
+              }),
               payer_account_id: "0.0.1001",
               sequence_number: 1,
-              topic_id: "0.0.5005"
-            }
+              topic_id: "0.0.5005",
+            },
           ],
-          links: { next: null }
-        })
+          links: { next: null },
+        }),
       );
 
     const snapshot = await fetchTopicSnapshot({
       network: "testnet",
       topicId: "0.0.5005",
       limit: 500,
-      fetchImpl
+      fetchImpl,
     });
 
     expect(snapshot.messages).toHaveLength(1);
@@ -61,13 +66,15 @@ describe("mirror helpers", () => {
       .fn<typeof fetch>()
       .mockResolvedValueOnce(jsonResponse({ topic_id: "0.0.5005" }))
       .mockResolvedValueOnce(jsonResponse({ _status: { messages: [] } }, 429))
-      .mockResolvedValueOnce(jsonResponse({ messages: [], links: { next: null } }));
+      .mockResolvedValueOnce(
+        jsonResponse({ messages: [], links: { next: null } }),
+      );
 
     const snapshot = await fetchTopicSnapshot({
       network: "testnet",
       topicId: "0.0.5005",
       fetchImpl,
-      maxRetries: 1
+      maxRetries: 1,
     });
 
     expect(snapshot.messages).toHaveLength(0);
