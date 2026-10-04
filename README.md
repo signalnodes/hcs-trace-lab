@@ -22,7 +22,7 @@ The HOL standard is what the template is built around. Without HCS-10 the demo h
 
 ## Prerequisites
 
-- Node.js `>=20.18.3` and npm 10 or later
+- Node.js `>=20.18.3`; package manager: `npm@10` or later
 - Git
 - Network access to `testnet.mirrornode.hedera.com`. The first build also needs `binaries.soliditylang.org` so Hardhat can download the Solidity compiler.
 - **Only for the write demo:** a Hedera testnet account and its private key. Create one and fund it from the [Hedera Portal](https://portal.hedera.com/) faucet. ECDSA and ED25519 keys both work, and a few testnet HBAR is enough for several demo runs.
