@@ -1,0 +1,12 @@
+node_modules
+.next
+dist
+coverage
+artifacts
+cache
+demo-output
+.env
+.env.*
+!.env.example
+npm-debug.log*
+.DS_Store

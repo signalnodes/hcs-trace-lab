@@ -1,0 +1,82 @@
+{
+  "name": "hcs-trace-lab",
+  "description": "A Scaffold-HBAR template for inspecting real HCS-10 agent communication topics with HCS Trace decoding.",
+  "version": "0.1.0",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["hardhat"],
+      "packageManager": ["npm"]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "hardhat",
+      "packageManager": "npm"
+    },
+    "requirements": {
+      "node": ">=20.18.3"
+    },
+    "envVars": [
+      {
+        "key": "HEDERA_NETWORK",
+        "description": "Hedera network for demo writes. Leave blank to default to testnet."
+      },
+      {
+        "key": "HEDERA_ACCOUNT_ID",
+        "description": "Funded Hedera testnet account ID for the HCS-10 demo script."
+      },
+      {
+        "key": "HEDERA_PRIVATE_KEY",
+        "description": "Private key for the funded testnet account. Keep this local."
+      },
+      {
+        "key": "NEXT_PUBLIC_DEFAULT_NETWORK",
+        "description": "Default inspector network. Leave blank to default to testnet."
+      },
+      {
+        "key": "NEXT_PUBLIC_DEFAULT_TOPIC_ID",
+        "description": "Optional public topic ID to load when the inspector opens. Leave blank to use 0.0.10854412."
+      }
+    ],
+    "outro": {
+      "sections": [
+        {
+          "title": "Start",
+          "steps": [
+            {
+              "command": "npm run dev"
+            },
+            {
+              "url": "http://localhost:3000"
+            }
+          ]
+        },
+        {
+          "title": "Verify",
+          "steps": [
+            {
+              "command": "npm run lint"
+            },
+            {
+              "command": "npm run build"
+            },
+            {
+              "command": "npm test"
+            }
+          ]
+        },
+        {
+          "title": "Create HCS-10 Demo Data",
+          "steps": [
+            {
+              "text": "Add a local .env from .env.example with a funded testnet account, then run:"
+            },
+            {
+              "command": "npm run demo:hcs10"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

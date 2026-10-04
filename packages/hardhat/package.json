@@ -1,0 +1,21 @@
+{
+  "name": "@hcs-trace-lab/hardhat",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "hardhat compile",
+    "lint": "tsc -p tsconfig.json --noEmit && hardhat compile",
+    "test": "hardhat test",
+    "demo:hcs10": "tsx scripts/hcs10-demo.ts"
+  },
+  "dependencies": {
+    "@hashgraph/sdk": "^2.78.0",
+    "@hashgraphonline/standards-sdk": "0.1.189",
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "hardhat": "2.22.19",
+    "typescript": "^5.9.3"
+  }
+}
