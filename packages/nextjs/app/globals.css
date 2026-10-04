@@ -92,10 +92,9 @@ h1 {
 
 .controls {
   display: grid;
-  grid-template-columns: 130px minmax(180px, 1fr) 140px minmax(
-      180px,
-      0.8fr
-    ) 42px 42px 42px;
+  grid-template-columns:
+    130px minmax(180px, 1fr) 140px minmax(180px, 0.8fr)
+    42px 42px 42px;
   gap: 10px;
   align-items: end;
   padding: 12px;

@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "npm run dev -w @hcs-trace-lab/nextjs",
     "build": "npm run build -w @hcs-trace-lab/core && npm run build -w @hcs-trace-lab/hardhat && npm run build -w @hcs-trace-lab/nextjs",
-    "format": "prettier --write README.md AGENTS.md template.json package.json tsconfig.base.json \"packages/**/*.{ts,tsx,js,cjs,json,css}\"",
+    "format": "prettier --write README.md AGENTS.md package.json tsconfig.base.json \"packages/**/*.{ts,tsx,js,cjs,json,css}\"",
     "lint": "npm run lint -w @hcs-trace-lab/core && npm run lint -w @hcs-trace-lab/hardhat && npm run lint -w @hcs-trace-lab/nextjs",
     "test": "npm run test -w @hcs-trace-lab/core && npm run test -w @hcs-trace-lab/hardhat",
     "demo:hcs10": "npm run demo:hcs10 -w @hcs-trace-lab/hardhat"
