@@ -35,7 +35,7 @@
       },
       {
         "key": "NEXT_PUBLIC_DEFAULT_TOPIC_ID",
-        "description": "Optional public topic ID to load when the inspector opens. Leave blank to use 0.0.10854412."
+        "description": "Optional public topic ID to load when the inspector opens. Leave blank to use 0.0.10862287."
       }
     ],
     "outro": {
@@ -61,7 +61,7 @@
               "command": "npm run build"
             },
             {
-              "command": "npm test"
+              "command": "npm run test"
             }
           ]
         },

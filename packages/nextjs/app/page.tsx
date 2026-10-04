@@ -48,7 +48,7 @@ const defaultNetwork =
   (process.env.NEXT_PUBLIC_DEFAULT_NETWORK?.trim() as Network | undefined) ||
   "testnet";
 const defaultTopicId =
-  process.env.NEXT_PUBLIC_DEFAULT_TOPIC_ID?.trim() || "0.0.10854412";
+  process.env.NEXT_PUBLIC_DEFAULT_TOPIC_ID?.trim() || "0.0.10862287";
 
 export default function Home() {
   const [network, setNetwork] = useState<Network>(defaultNetwork);

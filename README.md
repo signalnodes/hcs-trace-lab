@@ -36,10 +36,10 @@ Set these optional defaults in `.env`:
 
 ```bash
 NEXT_PUBLIC_DEFAULT_NETWORK=testnet
-NEXT_PUBLIC_DEFAULT_TOPIC_ID=0.0.10854412
+NEXT_PUBLIC_DEFAULT_TOPIC_ID=0.0.10862287
 ```
 
-The app falls back to testnet topic `0.0.10854412` when no topic is configured. The scaffold CLI regenerates `.env.example` with blank values, so this fallback is in application code rather than in the generated env file. You can replace it with any public HCS topic ID.
+The app falls back to testnet topic `0.0.10862287` when no topic is configured. The scaffold CLI regenerates `.env.example` with blank values, so this fallback is in application code rather than in the generated env file. You can replace it with any public HCS topic ID.
 
 ## HCS-10 Demo
 
@@ -91,28 +91,28 @@ Latest verified testnet run:
 
 - Network: `testnet`
 - Operator account: `0.0.8009862`
-- Alice inbound topic: `0.0.10854406`
-- Alice outbound topic: `0.0.10854407`
-- Bob inbound topic: `0.0.10854409`
-- Bob outbound topic: `0.0.10854410`
-- Connection topic: `0.0.10854412`
-- Connection topic Hashscan: `https://hashscan.io/testnet/topic/0.0.10854412`
-- Bob inbound Hashscan: `https://hashscan.io/testnet/topic/0.0.10854409`
-- Verified transaction ID: `0.0.8009862-1791101491-241946338`
-- Transaction mirror evidence: `https://testnet.mirrornode.hedera.com/api/v1/transactions/0.0.8009862-1791101491-241946338`
+- Alice inbound topic: `0.0.10862283`
+- Alice outbound topic: `0.0.10862284`
+- Bob inbound topic: `0.0.10862285`
+- Bob outbound topic: `0.0.10862286`
+- Connection topic: `0.0.10862287`
+- Connection topic Hashscan: `https://hashscan.io/testnet/topic/0.0.10862287`
+- Bob inbound Hashscan: `https://hashscan.io/testnet/topic/0.0.10862285`
+- Verified transaction ID: `0.0.8009862-1791147652-837118691`
+- Transaction mirror evidence: `https://testnet.mirrornode.hedera.com/api/v1/transactions/0.0.8009862-1791147652-837118691`
 
 Mirror node checks:
 
 ```bash
-curl "https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.10854412/messages?limit=10&order=asc"
-curl "https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.10854409/messages?limit=10&order=asc"
+curl "https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.10862287/messages?limit=10&order=asc"
+curl "https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.10862285/messages?limit=10&order=asc"
 ```
 
 Observed evidence:
 
-- Connection topic `0.0.10854412` has two HCS-10 `message` operations.
-- Bob inbound topic `0.0.10854409` has `connection_request` and `connection_created` operations.
-- Transaction `0.0.8009862-1791101491-241946338` is `CONSENSUSSUBMITMESSAGE` with result `SUCCESS` for entity `0.0.10854412`.
+- Connection topic `0.0.10862287` has two HCS-10 `message` operations.
+- Bob inbound topic `0.0.10862285` has `connection_request` and `connection_created` operations.
+- Transaction `0.0.8009862-1791147652-837118691` is `CONSENSUSSUBMITMESSAGE` with result `SUCCESS` for entity `0.0.10862287`.
 - The demo output was written locally to `packages/hardhat/demo-output/hcs10-last-run.json`.
 
 ## Architecture
