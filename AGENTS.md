@@ -4,7 +4,7 @@
 
 - `packages/hcs-trace-core`: read-only mirror node access, topic normalization, payload decoding, and tests for classification semantics.
 - `packages/nextjs`: browser inspector and server-side API routes. Private keys must never be imported, read, or exposed here.
-- `packages/hardhat`: required Scaffold-HBAR framework package, local Solidity compile/test surface, and the credentialed HCS-10 demo script.
+- `packages/hardhat`: credentialed testnet scripts (the HOL HCS-10 demo) and the project's Solidity compile/test surface. This is the only package that may read `HEDERA_*` credentials.
 
 ## Commands
 
@@ -36,3 +36,26 @@
 - Keep the template focused on HCS-10 topic creation, message exchange, mirror inspection, decoding, export, and evidence.
 - Defer login, databases, chat assistants, broad dashboards, and unrelated Hedera services unless the template goal changes.
 - Prefer small tests that protect decoder behavior, mirror error handling, and scaffold health.
+
+## Working In This Repo
+
+Start of a task:
+
+1. Read this file and the README section for the area you are changing.
+2. Decide which package owns the change by using the responsibilities above. Do not move mirror or decoding logic into `packages/nextjs`.
+3. Look at the nearest existing tests. Fixtures in `packages/hcs-trace-core/tests/fixtures/` are real testnet mirror responses, so prefer extending them over inventing message shapes.
+
+Where common changes go:
+
+- New or stricter standard detection: `packages/hcs-trace-core/src/decode/schemas.ts` (structural) or `detector.ts` (heuristic), with tests in `tests/decode.test.ts`.
+- New HCS-10 consistency check: `packages/hcs-trace-core/src/hcs10/flow.ts`, with tests in `tests/hcs10.test.ts`. Give it a stable `id` and use `pass`/`warn`/`fail`/`info` honestly.
+- Mirror behavior (limits, retries, pagination): `packages/hcs-trace-core/src/mirror/index.ts`, with tests in `tests/mirror.test.ts`.
+- UI: `packages/nextjs/app/page.tsx` (inspector) and `packages/nextjs/app/trace/` (tracer). API routes stay thin and call `@hcs-trace-lab/core`.
+- Testnet write flows: new scripts in `packages/hardhat/scripts/`. Keep the testnet-only guard and write non-secret evidence to `demo-output/`.
+
+A change is done when:
+
+- `npm run lint && npm run build && npm run test` passes from the repo root.
+- No credential, `.env` file or `demo-output/` file is staged.
+- Any new UI or docs wording keeps detection and consistency checks separate from identity claims.
+- Transaction or topic evidence in the README comes only from a real run, never from invented IDs.
