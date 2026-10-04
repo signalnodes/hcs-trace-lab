@@ -83,7 +83,7 @@ The app falls back to testnet topic `0.0.10862287` when no topic is configured. 
 
 ## Production Mainnet Example
 
-HCS Trace Lab also works against live mainnet topics. Signal Archive publishes an HCS-2 registry at `0.0.10388911`, which the inspector decodes as a structural HCS-2 `register` message.
+HCS Trace Lab also works against live mainnet topics. Signal Archive, a mainnet project by the same author, publishes an HCS-2 registry at `0.0.10388911`, which the inspector decodes as a structural HCS-2 `register` message.
 
 Try:
 
@@ -209,7 +209,7 @@ Writes go only through the demo script with your local credentials. Reads go onl
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `packages/hcs-trace-core` | Mirror reads with bounded pagination, retry/backoff and timeouts; payload decoding and classification; the HCS-10 parser, flow builder and tracer (`src/hcs10`). Adapted from the MIT-licensed `signalnodes/hcs-trace` CLI and packaged as a library. |
 | `packages/nextjs`         | Topic inspector (`/`), connection tracer (`/trace`), and the `/api/topic` and `/api/trace` routes.                                                                                                                                                    |
-| `packages/hardhat`        | Credentialed testnet scripts, including the HOL HCS-10 demo, plus the project's Solidity compile and test surface.                                                                                                                                    |
+| `packages/hardhat`        | Credentialed testnet scripts plus the Solidity compile/test surface.                                                                                                                                                                                  |
 
 ## Detection Labels
 

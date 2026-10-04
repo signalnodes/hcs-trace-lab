@@ -4,7 +4,7 @@
 
 - `packages/hcs-trace-core`: read-only mirror node access, topic normalization, payload decoding, and tests for classification semantics.
 - `packages/nextjs`: browser inspector and server-side API routes. Private keys must never be imported, read, or exposed here.
-- `packages/hardhat`: credentialed testnet scripts (the HOL HCS-10 demo) and the project's Solidity compile/test surface. This is the only package that may read `HEDERA_*` credentials.
+- `packages/hardhat`: credentialed testnet scripts plus the Solidity compile/test surface. This is the only package that may read `HEDERA_*` credentials.
 
 ## Commands
 
