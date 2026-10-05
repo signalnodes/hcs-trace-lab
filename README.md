@@ -24,7 +24,7 @@ The HOL standard is what the template is built around. Without HCS-10 the demo h
 
 - Node.js `>=20.18.3`; package manager: `npm@10` or later
 - Git
-- Network access to `testnet.mirrornode.hedera.com`. The first build also needs `binaries.soliditylang.org` so Hardhat can download the Solidity compiler.
+- Network access to `testnet.mirrornode.hedera.com`.
 - **Only for the write demo:** a Hedera testnet account and its private key. Create one and fund it from the [Hedera Portal](https://portal.hedera.com/) faucet. ECDSA and ED25519 keys both work, and a few testnet HBAR is enough for several demo runs.
 
 Nothing else is needed to browse topics or trace connections. The inspector and tracer are read-only and use public mirror node APIs.
@@ -254,4 +254,3 @@ npm run lint && npm run build && npm run test
 - Empty topic after creation: wait for mirror node indexing and refresh.
 - Demo fails with insufficient balance: fund the testnet account from the Hedera Portal faucet.
 - Demo fails on private key parsing: use the key format exported by the Hedera Portal or SDK account tooling.
-- Build fails in Hardhat on first run: retry with network access so Hardhat can fetch the configured Solidity compiler.
